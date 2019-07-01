@@ -23,89 +23,77 @@ The goals / steps of this project are the following:
 
 ### The pipeline I used was based on the logistic and consisted of 6 steps:
 
+1. Calculate the camera calibration matrix and distortion coefficients by the chessboard images
+2. For every image input, it'll be processed by the undistort function to eliminate the effect of distortion caused by the camera
+3. Apply the perspective transform to top-down view (from a trapezoid roi to rectangle)
+4. Transform the image color space to HLS, and utilize the satuation channel to identify the yellow line and the gradient of luminance channel to others. Use the adjusted threshold to binarize the input image
+5. Detect the lane pixels within sliding windows (at the first time), and within the polynomial from the following step. When the there's no points found around the polynomial, search again by sliding window
+6. With the pixels detected in the previous step, we could fit the points to have quadratic function
+7. Determine the curvature of the polynomial lines with the real world measurement
+8. Warp the polynomials to the original image (after undistortion) to have a better visualization of the lane line detected
+9. Put the radious of the curvature and the the distance of the camera to the center of the road on the image, and render the video
+
 (Original test images:)
 
-<img src="./test_images/solidYellowCurve.jpg " width="200">
-<img src="./test_images/solidYellowLeft.jpg" width="200">
-<img src="./test_images/solidYellowCurve2.jpg" width="200">
-<img src="./test_images/solidWhiteRight.jpg" width="200">
-<img src="./test_images/whiteCarLaneSwitch.jpg" width="200">
-<img src="./test_images/solidWhiteCurve.jpg" width="200">
+<img src="./test_images/test1.jpg " width="200">
+<img src="./test_images/test2.jpg" width="200">
+<img src="./test_images/test3.jpg" width="200">
+<img src="./test_images/test4.jpg" width="200">
+<img src="./test_images/test5.jpg" width="200">
+<img src="./test_images/test6.jpg" width="200">
 
 ---
 
-1.  Convert the input image into grayscale for feature extraction steps later.
+1.  Undistort the input image.
 
-<img src="./test_images_output/grayscale_solidYellowCurve.jpg" width="200">
-<img src="./test_images_output/grayscale_solidYellowLeft.jpg" width="200">
-<img src="./test_images_output/grayscale_solidYellowCurve2.jpg" width="200">
-<img src="./test_images_output/grayscale_solidWhiteRight.jpg" width="200">
-<img src="./test_images_output/grayscale_whiteCarLaneSwitch.jpg" width="200">
-<img src="./test_images_output/grayscale_solidWhiteCurve.jpg" width="200">
-
----
-
-2.  Blur the grayscale image with Gaussian filter to eliminate the noise.
-
-<img src="./test_images_output/gaussian_blur_solidYellowCurve.jpg" width="200">
-<img src="./test_images_output/gaussian_blur_solidYellowLeft.jpg" width="200">
-<img src="./test_images_output/gaussian_blur_solidYellowCurve2.jpg" width="200">
-<img src="./test_images_output/gaussian_blur_solidWhiteRight.jpg" width="200">
-<img src="./test_images_output/gaussian_blur_whiteCarLaneSwitch.jpg" width="200">
-<img src="./test_images_output/gaussian_blur_solidWhiteCurve.jpg" width="200">
+<img src="./output_images/test1/calibrated.jpg" width="200">
+<img src="./output_images/test2/calibrated.jpg" width="200">
+<img src="./output_images/test3/calibrated.jpg" width="200">
+<img src="./output_images/test4/calibrated.jpg" width="200">
+<img src="./output_images/test5/calibrated.jpg" width="200">
+<img src="./output_images/test6/calibrated.jpg" width="200">
 
 ---
 
-3.  Use Canny edge detector to find the edges in the image where the gradient are large.
+2.  Transform the perpective to "bird-eye" view
 
-<img src="./test_images_output/canny_solidYellowCurve.jpg" width="200">
-<img src="./test_images_output/canny_solidYellowLeft.jpg" width="200">
-<img src="./test_images_output/canny_solidYellowCurve2.jpg" width="200">
-<img src="./test_images_output/canny_solidWhiteRight.jpg" width="200">
-<img src="./test_images_output/canny_whiteCarLaneSwitch.jpg" width="200">
-<img src="./test_images_output/canny_solidWhiteCurve.jpg" width="200">
-
----
-
-4.  Mask the region of interest with a polygon.
-
-<img src="./test_images_output/masked_solidYellowCurve.jpg" width="200">
-<img src="./test_images_output/masked_solidYellowLeft.jpg" width="200">
-<img src="./test_images_output/masked_solidYellowCurve2.jpg" width="200">
-<img src="./test_images_output/masked_solidWhiteRight.jpg" width="200">
-<img src="./test_images_output/masked_whiteCarLaneSwitch.jpg" width="200">
-<img src="./test_images_output/masked_solidWhiteCurve.jpg" width="200">
+<img src="./output_images/test1/wapred.jpg" width="200">
+<img src="./output_images/test2/wapred.jpg" width="200">
+<img src="./output_images/test3/wapred.jpg" width="200">
+<img src="./output_images/test4/wapred.jpg" width="200">
+<img src="./output_images/test5/wapred.jpg" width="200">
+<img src="./output_images/test6/wapred.jpg" width="200">
 
 ---
 
-5.  With Hough transfer, we can find the lines within the edges. While our target is to find the left and right line of the lane, we can filter the lines with the slope of them. Then avarage the middle points and slopes of the lines we found after the filter, we got the left and right line we wanted. To make the result more smooth and also to prevent the situation of finding no solid line from the current image, I use 50% weight to modify the current result with the previous ones. 
+3.  Use gradient and color space transform to binarize the image
 
-<img src="./test_images_output/hough_lines_solidYellowCurve.jpg" width="200">
-<img src="./test_images_output/hough_lines_solidYellowLeft.jpg" width="200">
-<img src="./test_images_output/hough_lines_solidYellowCurve2.jpg" width="200">
-<img src="./test_images_output/hough_lines_solidWhiteRight.jpg" width="200">
-<img src="./test_images_output/hough_lines_whiteCarLaneSwitch.jpg" width="200">
-<img src="./test_images_output/hough_lines_solidWhiteCurve.jpg" width="200">
+<img src="./output_images/test1/binarized.jpg" width="200">
+<img src="./output_images/test2/binarized.jpg" width="200">
+<img src="./output_images/test3/binarized.jpg" width="200">
+<img src="./output_images/test4/binarized.jpg" width="200">
+<img src="./output_images/test5/binarized.jpg" width="200">
+<img src="./output_images/test6/binarized.jpg" width="200">
+
+---
+
+4.  Result of the lane-line detection
+
+<img src="./output_images/test1/result.jpg" width="200">
+<img src="./output_images/test2/result.jpg" width="200">
+<img src="./output_images/test3/result.jpg" width="200">
+<img src="./output_images/test4/result.jpg" width="200">
+<img src="./output_images/test5/result.jpg" width="200">
+<img src="./output_images/test6/result.jpg" width="200">
 
 ---
 
-5.  For demonstrate the lane line we found, merge the lines and the original image together with weight, then we'll have a delicated image with two lines detected from the image.
-
-<img src="./test_images_output/result_solidYellowCurve.jpg" width="200">
-<img src="./test_images_output/result_solidYellowLeft.jpg" width="200">
-<img src="./test_images_output/result_solidYellowCurve2.jpg" width="200">
-<img src="./test_images_output/result_solidWhiteRight.jpg" width="200">
-<img src="./test_images_output/result_whiteCarLaneSwitch.jpg" width="200">
-<img src="./test_images_output/result_solidWhiteCurve.jpg" width="200">
-
----
 
 ### 2. Identify potential shortcomings with your current pipeline
 
-
-One potential shortcoming would be what would happen when the line color blend in to the background (road) or too many noise. While we can see in the challenge part, the detection ability of my pipeline would be affected when the road color changes and the lines on both sides were not different from the background enough to have clear edges; and the shadow of the tree would also cause huge noise to the detection.
+Currently in the middle of the video, the right lane detection was not extremely stable. Some of the noise would affect the final calculation of the polynomial. One potential shortcoming would be like the situation in the challenge video, which has more complicated road image (background). 
 
 
 ### 3. Suggest possible improvements to your pipeline
 
-A possible improvement would be to make more contrast to the region of interest.
+Need to find maybe a better threshold (parameters) to restrict the detection or add constraints on the detected lines, such as the line distance should be more than 600 pixels.
