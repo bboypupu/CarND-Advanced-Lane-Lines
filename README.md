@@ -57,12 +57,12 @@ The goals / steps of this project are the following:
 
 2.  Transform the perpective to "bird-eye" view
 
-<img src="./output_images/test1/wapred.jpg" width="200">
-<img src="./output_images/test2/wapred.jpg" width="200">
-<img src="./output_images/test3/wapred.jpg" width="200">
-<img src="./output_images/test4/wapred.jpg" width="200">
-<img src="./output_images/test5/wapred.jpg" width="200">
-<img src="./output_images/test6/wapred.jpg" width="200">
+<img src="./output_images/test1/warped.jpg" width="200">
+<img src="./output_images/test2/warped.jpg" width="200">
+<img src="./output_images/test3/warped.jpg" width="200">
+<img src="./output_images/test4/warped.jpg" width="200">
+<img src="./output_images/test5/warped.jpg" width="200">
+<img src="./output_images/test6/warped.jpg" width="200">
 
 ---
 
